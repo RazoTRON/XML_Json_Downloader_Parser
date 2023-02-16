@@ -21,11 +21,6 @@ class HttpsImpl : Https {
             return true
         }
 
-
-        (1..4000000000).forEach {
-            it.hashCode()
-        }
-
         return try {
             if (response.isSuccessful) {
                 inputStream = response.body!!.byteStream()
