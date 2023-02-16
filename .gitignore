@@ -1,0 +1,8 @@
+/.idea/
+/build/
+/.gradle/
+/src/main/kotlin/app/
+/src/main/kotlin/app/Main.kt
+/src/main/kotlin/data/
+/src/main/kotlin/data/HttpsImpl.kt
+/src/main/kotlin/domain/
