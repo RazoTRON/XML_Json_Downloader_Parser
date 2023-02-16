@@ -1,6 +1,7 @@
 package app
 
-import data.HttpsImpl
+import data.DownloaderImpl
+import data.ParserImpl
 import domain.usecases.DownloadFileUseCase
 import domain.models.JsonModelDto
 import domain.usecases.ParseJsonUseCase
@@ -18,7 +19,9 @@ fun main() {
     val jsonOutputFile = File("it_news.json")
     val xmlOutputFile = File("it_news.xml")
 
-    val downloader = DownloadFileUseCase(HttpsImpl())
+    val downloader = DownloadFileUseCase(DownloaderImpl())
+    val xmlParser = ParseXmlUseCase(ParserImpl())
+    val jsonParser = ParseJsonUseCase(ParserImpl())
 
     val time = measureTimeMillis {
     runBlocking {
@@ -28,19 +31,19 @@ fun main() {
 
             val parseJsonFile = async(Dispatchers.IO) {
                 if (isJsonDownloaded.await()) {
-                    ParseJsonUseCase().execute(jsonOutputFile, JsonModelDto::class.java)
+                    jsonParser.execute(jsonOutputFile, JsonModelDto::class.java)
                 }
             }
             val parseXmlFile = async(Dispatchers.IO) {
                 if (isXmlDownloaded.await()) {
-                    ParseXmlUseCase().execute(xmlOutputFile, JsonModelDto::class.java)
+                    xmlParser.execute(xmlOutputFile, JsonModelDto::class.java)
                 }
             }
             val parseJsonUrl = async(Dispatchers.IO) {
-                ParseJsonUseCase().execute(urlJson, JsonModelDto::class.java)
+                jsonParser.execute(urlJson, JsonModelDto::class.java)
             }
             val parseXmlUrl = async(Dispatchers.IO) {
-                ParseXmlUseCase().execute(urlXml, JsonModelDto::class.java)
+                xmlParser.execute(urlXml, JsonModelDto::class.java)
             }
         }
     }

@@ -1,15 +1,16 @@
 package domain.usecases
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper
+import domain.services.Parser
 import java.io.File
 import java.net.URL
 
-class ParseXmlUseCase {
+class ParseXmlUseCase(val parser: Parser) {
     fun <T> execute(url: URL, valueType: Class<T>): T? {
         println("Start XML URL parsing...")
         var result: T? = null
         parserExceptionHandler {
-            result = XmlMapper().readValue(url, valueType)
+            result = parser.parseXml(url, valueType)
         }
         println("Finish XML URL parsing.")
         return result
@@ -19,7 +20,7 @@ class ParseXmlUseCase {
         println("Start XML file parsing...")
         var result: T? = null
         parserExceptionHandler {
-            result = XmlMapper().readValue(file, valueType)
+            result = parser.parseXml(file, valueType)
         }
         println("Finish XML file parsing.")
         return result
