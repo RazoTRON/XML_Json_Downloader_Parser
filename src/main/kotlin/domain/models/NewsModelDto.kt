@@ -19,3 +19,19 @@ data class NewsModelDto(
     @JsonProperty("visible")
     val visible: Boolean? = null
 )
+
+fun List<NewsModelDto>.show() {
+    this.forEach {
+        println(
+            """
+                =================================
+                Date: ${it.date}
+                ID: ${it.id}
+                Title: ${it.title}
+                Keywords: ${it.keywords}
+                
+                Description: ${it.description}
+            """.trimIndent()
+        )
+    }
+}

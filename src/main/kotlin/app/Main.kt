@@ -1,51 +1,48 @@
 package app
 
+import app.dialogs.downloadDialog
+import app.dialogs.newsDialog
 import data.DownloaderImpl
 import data.ParserImpl
-import domain.usecases.DownloadFileUseCase
-import domain.models.JsonModelDto
-import domain.usecases.ParseJsonUseCase
-import domain.usecases.ParseXmlUseCase
+import data.RepositoryImpl
+import data.Storage
+import domain.usecases.*
+import domain.util.MenuState
 import kotlinx.coroutines.*
-import java.io.File
-import java.net.URL
-import kotlin.system.measureTimeMillis
+
+const val urlJson = "https://api2.kiparo.com/static/it_news.json"
+const val urlXml = "https://api2.kiparo.com/static/it_news.xml"
+
+const val jsonOutputFile = "it_news.json"
+const val xmlOutputFile = "it_news.xml"
 
 fun main() {
 
-    val urlJson = URL("https://api2.kiparo.com/static/it_news.json")
-    val urlXml = URL("https://api2.kiparo.com/static/it_news.xml")
+    val vm = SimulatorViewModel(
+        downloader = DownloadFileUseCase(DownloaderImpl()),
+        xmlParser = ParseXmlUseCase(ParserImpl(), RepositoryImpl(Storage)),
+        jsonParser = ParseJsonUseCase(ParserImpl(), RepositoryImpl(Storage)),
+        getAllNewsUseCase = GetAllNewsUseCase(RepositoryImpl(Storage)),
+        getNewsByKeywordUseCase = GetNewsByKeywordUseCase(RepositoryImpl(Storage)),
+    )
 
-    val jsonOutputFile = File("it_news.json")
-    val xmlOutputFile = File("it_news.xml")
-
-    val downloader = DownloadFileUseCase(DownloaderImpl())
-    val xmlParser = ParseXmlUseCase(ParserImpl())
-    val jsonParser = ParseJsonUseCase(ParserImpl())
-
-    val time = measureTimeMillis {
     runBlocking {
-
-            val isJsonDownloaded = async(Dispatchers.IO) { downloader.execute(urlJson, jsonOutputFile) }
-            val isXmlDownloaded = async(Dispatchers.IO) { downloader.execute(urlXml, xmlOutputFile) }
-
-            val parseJsonFile = async(Dispatchers.IO) {
-                if (isJsonDownloaded.await()) {
-                    jsonParser.execute(jsonOutputFile, JsonModelDto::class.java)
-                }
-            }
-            val parseXmlFile = async(Dispatchers.IO) {
-                if (isXmlDownloaded.await()) {
-                    xmlParser.execute(xmlOutputFile, JsonModelDto::class.java)
-                }
-            }
-            val parseJsonUrl = async(Dispatchers.IO) {
-                jsonParser.execute(urlJson, JsonModelDto::class.java)
-            }
-            val parseXmlUrl = async(Dispatchers.IO) {
-                xmlParser.execute(urlXml, JsonModelDto::class.java)
+        while (Navigator.state != MenuState.Exit) {
+            when (Navigator.state) {
+                is MenuState.DownloadScreen -> downloadDialog(vm)
+                is MenuState.NewsScreen -> newsDialog(vm)
+                is MenuState.Exit -> println("Program is closed.")
             }
         }
     }
-    println(time)
 }
+
+
+
+
+
+
+
+
+
+

@@ -1,29 +1,33 @@
 package domain.usecases
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import domain.models.JsonModelDto
 import domain.services.Parser
+import domain.services.Repository
+import domain.util.Resource
+import domain.util.parserExceptionHandler
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import java.io.File
-import java.net.URL
 
-class ParseJsonUseCase(val parser: Parser) {
-    fun <T> execute(url: URL, valueType: Class<T>): T? {
-        println("Start Json URL parsing...")
-        var result: T? = null
-        parserExceptionHandler {
-            result = parser.parseJson(url, valueType)
-        }
-        println("Finish Json URL parsing.")
-        return result
-    }
+class ParseJsonUseCase(val parser: Parser, val repository: Repository) {
 
-    fun <T> execute(file: File, valueType: Class<T>): T? {
-        println("Start Json file parsing...")
+    fun <T> execute(file: File, valueType: Class<T>): Flow<Resource<Unit>> = flow {
+        emit(Resource.Loading())
         var result: T? = null
         parserExceptionHandler {
             result = parser.parseJson(file, valueType)
         }
-        println("Finish Json file parsing.")
-        return result
-    }
+        if (result != null) {
+            emit(Resource.Success())
 
+            when (valueType) {
+                JsonModelDto::class.java -> {
+                    val jsonModelDto = result as JsonModelDto
+                    SaveNewsUseCase(repository).execute(jsonModelDto.newsModels)
+                }
+            }
+        } else {
+            emit(Resource.Error())
+        }
+    }
 }

@@ -1,4 +1,4 @@
-package domain.usecases
+package domain.util
 
 import com.fasterxml.jackson.core.exc.StreamReadException
 import com.fasterxml.jackson.databind.DatabindException
