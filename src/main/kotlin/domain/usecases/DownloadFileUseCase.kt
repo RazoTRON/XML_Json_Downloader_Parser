@@ -14,11 +14,11 @@ import java.net.URL
 class DownloadFileUseCase(private val downloader: Downloader) {
     fun execute(url: URL, outputFile: File, bufferSize: Int = 1024): Flow<Resource<File>> = flow {
         if (outputFile.exists()) {
-            emit(Resource.Success(message = "File ${outputFile.name} is already downloaded."))
+            emit(Resource.Success(message = "File '${outputFile.name}' is already downloaded."))
             return@flow
         }
 
-        emit(Resource.Loading("Downloading Json file is started."))
+        emit(Resource.Loading("${url.path.substringAfterLast('.').uppercase()} file download started."))
         var response: Response? = null
         try {
             response = downloader.request(url)
@@ -38,7 +38,7 @@ class DownloadFileUseCase(private val downloader: Downloader) {
         if (response.isSuccessful) {
             try {
                 val file = downloader.saveToFile(response, outputFile, bufferSize)
-                emit(Resource.Success(file, "Downloading Json file is finished."))
+                emit(Resource.Success(file, "${url.path.substringAfterLast('.').uppercase()} file download is finished."))
             } catch (e: IOException) {
                 emit(Resource.Error("Reading/writing file problem occurs. ${e.localizedMessage}"))
             } catch (e: NullPointerException) {
