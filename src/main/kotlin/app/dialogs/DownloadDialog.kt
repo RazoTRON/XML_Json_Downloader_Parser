@@ -2,15 +2,14 @@ package app.dialogs
 
 import app.*
 import domain.util.MenuState
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import java.io.File
 import java.net.URL
 
+suspend fun downloadDialog(newsFakeViewModel: DownloadFakeViewModel, navigatorController: Navigator = Navigator) {
 
-suspend fun downloadDialog(simulatorViewModel: SimulatorViewModel) {
     coroutineScope {
+
         println(
             """
                 | Choose what you want to download and parse:
@@ -19,28 +18,35 @@ suspend fun downloadDialog(simulatorViewModel: SimulatorViewModel) {
                 | Write 'exit' to close program
             """.trimIndent()
         )
+
         when (readln().lowercase()) {
             "1" -> {
                 launch(Dispatchers.IO) {
-                    simulatorViewModel.downloadFile(URL(urlJson), File(jsonOutputFile))
-                    simulatorViewModel.parseJson(File(jsonOutputFile))
+                    newsFakeViewModel.downloadFile(URL(urlJson), File(jsonOutputFile))
+                    newsFakeViewModel.parseJson(File(jsonOutputFile))
+                    if (newsFakeViewModel.isDownloadAndParseSuccessful.value) {
+                        navigatorController.navigate(MenuState.NewsScreen)
+                    }
                 }
             }
 
             "2" -> {
                 launch(Dispatchers.IO) {
-                    simulatorViewModel.downloadFile(URL(urlXml), File(xmlOutputFile))
-                    simulatorViewModel.parseXml(File(xmlOutputFile))
+                    newsFakeViewModel.downloadFile(URL(urlXml), File(xmlOutputFile))
+                    newsFakeViewModel.parseXml(File(xmlOutputFile))
+                    if (newsFakeViewModel.isDownloadAndParseSuccessful.value) {
+                        navigatorController.navigate(MenuState.NewsScreen)
+                    }
                 }
             }
 
             "exit" -> {
-                Navigator.navigate(MenuState.Exit)
+                navigatorController.navigate(MenuState.Exit)
                 return@coroutineScope
             }
 
             else -> println("Incorrect input. Try again.")
         }
-        Navigator.navigate(MenuState.NewsScreen)
+
     }
 }

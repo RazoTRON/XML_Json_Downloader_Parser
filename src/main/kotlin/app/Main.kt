@@ -1,5 +1,7 @@
 package app
 
+import app.dialogs.DownloadFakeViewModel
+import app.dialogs.NewsFakeViewModel
 import app.dialogs.downloadDialog
 import app.dialogs.newsDialog
 import data.DownloaderImpl
@@ -8,41 +10,35 @@ import data.RepositoryImpl
 import data.Storage
 import domain.usecases.*
 import domain.util.MenuState
-import kotlinx.coroutines.*
-
-const val urlJson = "https://api2.kiparo.com/static/it_news.json"
-const val urlXml = "https://api2.kiparo.com/static/it_news.xml"
-
-const val jsonOutputFile = "it_news.json"
-const val xmlOutputFile = "it_news.xml"
+import kotlinx.coroutines.runBlocking
 
 fun main() {
 
-    val vm = SimulatorViewModel(
-        downloader = DownloadFileUseCase(DownloaderImpl()),
-        xmlParser = ParseXmlUseCase(ParserImpl(), RepositoryImpl(Storage)),
-        jsonParser = ParseJsonUseCase(ParserImpl(), RepositoryImpl(Storage)),
-        getAllNewsUseCase = GetAllNewsUseCase(RepositoryImpl(Storage)),
-        getNewsByKeywordUseCase = GetNewsByKeywordUseCase(RepositoryImpl(Storage)),
+    val navigatorController = Navigator
+
+    val downloader = DownloaderImpl()
+    val parser = ParserImpl()
+    val repository = RepositoryImpl(Storage)
+
+    val downloadViewModel = DownloadFakeViewModel(
+        downloader = DownloadFileUseCase(downloader),
+        xmlParser = ParseXmlUseCase(parser, repository),
+        jsonParser = ParseJsonUseCase(parser, repository),
+    )
+
+    val newsViewModel = NewsFakeViewModel(
+        getAllNewsUseCase = GetAllNewsUseCase(repository),
+        getNewsByKeywordUseCase = GetNewsByKeywordUseCase(repository),
     )
 
     runBlocking {
-        while (Navigator.state != MenuState.Exit) {
-            when (Navigator.state) {
-                is MenuState.DownloadScreen -> downloadDialog(vm)
-                is MenuState.NewsScreen -> newsDialog(vm)
+        while (navigatorController.state != MenuState.Exit) {
+            when (navigatorController.state) {
+                is MenuState.DownloadScreen -> downloadDialog(downloadViewModel)
+                is MenuState.NewsScreen -> newsDialog(newsViewModel)
                 is MenuState.Exit -> println("Program is closed.")
             }
         }
     }
+
 }
-
-
-
-
-
-
-
-
-
-

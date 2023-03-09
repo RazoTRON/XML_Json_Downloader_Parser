@@ -1,23 +1,18 @@
-package app
+package app.dialogs
 
 import domain.models.JsonModelDto
 import domain.usecases.*
-import domain.util.MenuState
 import domain.util.Resource
+import kotlinx.coroutines.flow.MutableStateFlow
 import java.io.File
 import java.net.URL
 
-class SimulatorViewModel(
+class DownloadFakeViewModel(
     private val downloader: DownloadFileUseCase,
     private val xmlParser: ParseXmlUseCase,
     private val jsonParser: ParseJsonUseCase,
-    private val getAllNewsUseCase: GetAllNewsUseCase,
-    private val getNewsByKeywordUseCase: GetNewsByKeywordUseCase
 ) {
-
-    var menuState: MenuState = MenuState.DownloadScreen
-    fun getAllNews() = getAllNewsUseCase.execute(sortByDate = true)
-    fun getNewsByKeyword(keywords: List<String>) = getNewsByKeywordUseCase.execute(keywords, sortByDate = true)
+    val isDownloadAndParseSuccessful = MutableStateFlow(false)
 
     suspend fun downloadFile(url: URL, outputFile: File) {
         downloader.execute(url, outputFile).collect {
@@ -42,7 +37,7 @@ class SimulatorViewModel(
             when (it) {
                 is Resource.Success -> {
                     println("XML file parsing is finished.")
-                    menuState = MenuState.NewsScreen
+                    isDownloadAndParseSuccessful.emit(true)
                 }
 
                 is Resource.Loading -> {
@@ -61,7 +56,7 @@ class SimulatorViewModel(
             when (it) {
                 is Resource.Success -> {
                     println("JSON file parsing is finished.")
-                    menuState = MenuState.NewsScreen
+                    isDownloadAndParseSuccessful.emit(true)
                 }
 
                 is Resource.Loading -> {

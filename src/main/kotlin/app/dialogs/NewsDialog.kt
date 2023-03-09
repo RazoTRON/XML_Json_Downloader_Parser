@@ -1,14 +1,13 @@
 package app.dialogs
 
 import app.Navigator
-import app.SimulatorViewModel
 import domain.models.show
 import domain.util.MenuState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
-suspend fun newsDialog(simulatorViewModel: SimulatorViewModel) {
+suspend fun newsDialog(newsFakeViewModel: NewsFakeViewModel, navigatorController: Navigator = Navigator) {
     coroutineScope {
         println(
             """
@@ -21,24 +20,24 @@ suspend fun newsDialog(simulatorViewModel: SimulatorViewModel) {
         when (readln().lowercase()) {
             "1" -> {
                 launch(Dispatchers.IO) {
-                    simulatorViewModel.getAllNews().show()
+                    newsFakeViewModel.getAllNews().show()
                 }
             }
 
             "2" -> {
                 println("Write keywords separated by spaces:")
                 launch(Dispatchers.IO) {
-                    simulatorViewModel.getNewsByKeyword(readln().lowercase().trim().split(' ')).show()
+                    newsFakeViewModel.getNewsByKeyword(readln().lowercase().trim().split(' ')).show()
                 }
             }
 
             "exit" -> {
-                Navigator.navigate(MenuState.Exit)
+                navigatorController.navigate(MenuState.Exit)
                 return@coroutineScope
             }
 
             else -> println("Incorrect input. Try again.")
         }
-        Navigator.navigate(MenuState.DownloadScreen)
+        navigatorController.navigate(MenuState.DownloadScreen)
     }
 }
