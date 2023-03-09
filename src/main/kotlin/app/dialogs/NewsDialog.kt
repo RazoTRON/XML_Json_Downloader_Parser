@@ -7,7 +7,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
-suspend fun newsDialog(newsFakeViewModel: NewsFakeViewModel, navigatorController: Navigator = Navigator) {
+suspend fun newsDialog(newsFakeViewModel: NewsFakeViewModel, navigatorController: Navigator) {
     coroutineScope {
         println(
             """

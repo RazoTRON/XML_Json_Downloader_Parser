@@ -1,9 +1,8 @@
-package domain.usecases
+package domain.util
 
 import domain.models.JsonModelDto
 import domain.services.Repository
-import domain.util.Resource
-import domain.util.parserExceptionHandler
+import domain.usecases.SaveNewsUseCase
 import kotlinx.coroutines.flow.flow
 import java.io.File
 

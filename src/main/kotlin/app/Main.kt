@@ -34,8 +34,8 @@ fun main() {
     runBlocking {
         while (navigatorController.state != MenuState.Exit) {
             when (navigatorController.state) {
-                is MenuState.DownloadScreen -> downloadDialog(downloadViewModel)
-                is MenuState.NewsScreen -> newsDialog(newsViewModel)
+                is MenuState.DownloadScreen -> downloadDialog(downloadViewModel, navigatorController)
+                is MenuState.NewsScreen -> newsDialog(newsViewModel, navigatorController)
                 is MenuState.Exit -> println("Program is closed.")
             }
         }

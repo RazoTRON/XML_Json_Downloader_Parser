@@ -6,7 +6,7 @@ import kotlinx.coroutines.*
 import java.io.File
 import java.net.URL
 
-suspend fun downloadDialog(newsFakeViewModel: DownloadFakeViewModel, navigatorController: Navigator = Navigator) {
+suspend fun downloadDialog(newsFakeViewModel: DownloadFakeViewModel, navigatorController: Navigator) {
 
     coroutineScope {
 
